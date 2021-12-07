@@ -52,12 +52,19 @@ func resourceContentfulContentType() *schema.Resource {
 			"content_type_id": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"env_id": {
 				Type:     schema.TypeString,
 				Default:  "",
 				Optional: true,
 				ForceNew: true,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					if new == "" {
+						return true
+					}
+					return old == new
+				},
 			},
 			"field": {
 				Type:     schema.TypeList,
@@ -133,6 +140,9 @@ func resourceContentfulContentType() *schema.Resource {
 				},
 			},
 		},
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 	}
 }
 
@@ -197,7 +207,7 @@ func resourceContentTypeCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	d.Set("version", getVersion(res))
-	d.SetId(id)
+	d.SetId(fmt.Sprintf("%s/%s/%s", spaceID, envID, id))
 
 	return diags
 }
@@ -206,9 +216,15 @@ func resourceContentTypeRead(ctx context.Context, d *schema.ResourceData, meta i
 	var diags diag.Diagnostics
 	client := meta.(*contentful.Client)
 
-	spaceID := d.Get("space_id").(string)
-	envID := d.Get("env_id").(string)
-	ct, err := client.ContentType.Read(ctx, spaceID, envID, d.Id())
+	ids := strings.Split(d.Id(), "/")
+	if len(ids) != 3 {
+		return diag.Errorf("Got invalid id: %s", d.Id())
+	}
+	spaceID := ids[0]
+	envID := ids[1]
+	id := ids[2]
+
+	ct, err := client.ContentType.Read(ctx, spaceID, envID, id)
 
 	if err != nil && strings.Contains(err.Error(), "status code 404") {
 		d.SetId("")
@@ -225,6 +241,9 @@ func resourceContentTypeRead(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("Unknown error when processing fields for content type:%s : %s", d.Id(), err.Error())
 	}
 
+	d.Set("content_type_id", id)
+	d.Set("env_id", envID)
+	d.Set("space_id", spaceID)
 	d.Set("version", getVersion(ct))
 	d.Set("name", ct["name"])
 	d.Set("description", strings.TrimPrefix(ct["description"].(string), warningMessage))
@@ -238,8 +257,14 @@ func resourceContentTypeUpdate(ctx context.Context, d *schema.ResourceData, meta
 	var diags diag.Diagnostics
 	client := meta.(*contentful.Client)
 
-	spaceID := d.Get("space_id").(string)
-	envID := d.Get("env_id").(string)
+	ids := strings.Split(d.Id(), "/")
+	if len(ids) != 3 {
+		return diag.Errorf("Got invalid id: %s", d.Id())
+	}
+	spaceID := ids[0]
+	envID := ids[1]
+	id := ids[2]
+
 	protected := d.Get("protected").(bool)
 	version := d.Get("version").(int)
 
@@ -282,14 +307,14 @@ func resourceContentTypeUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 		body["fields"] = fields
 
-		res, err := client.ContentType.Put(ctx, spaceID, envID, d.Id(), version, body)
+		res, err := client.ContentType.Put(ctx, spaceID, envID, id, version, body)
 		if err != nil {
 			return diag.Errorf("Unknown error when performing upsert: %s", err.Error())
 		}
 
 		version = getVersion(res)
 
-		res, err = client.ContentType.Activate(ctx, spaceID, envID, d.Id(), version)
+		res, err = client.ContentType.Activate(ctx, spaceID, envID, id, version)
 		if err != nil {
 			return diag.Errorf("Unknown error when activating content type: %s", err.Error())
 		}
@@ -303,13 +328,13 @@ func resourceContentTypeUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 	body["fields"] = fields
 
-	res, err := client.ContentType.Put(ctx, spaceID, envID, d.Id(), version, body)
+	res, err := client.ContentType.Put(ctx, spaceID, envID, id, version, body)
 	if err != nil {
 		return diag.Errorf("Unknown error when performing upsert: %s", err.Error())
 	}
 	version = getVersion(res)
 
-	res, err = client.ContentType.Activate(ctx, spaceID, envID, d.Id(), version)
+	res, err = client.ContentType.Activate(ctx, spaceID, envID, id, version)
 	if err != nil {
 		return diag.Errorf("Unknown error when activating content type: %s", err.Error())
 	}
