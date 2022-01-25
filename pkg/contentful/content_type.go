@@ -24,13 +24,7 @@ func NewContentTypeService(c *Client) IContentTypeService {
 
 func (s *contentTypeService) Activate(ctx context.Context, spaceID string, env string, id string, version int) (map[string]interface{}, error) {
 	path := fmt.Sprintf("/spaces/%s/environments/%s/content_types/%s/published", spaceID, s.c.getEnv(env), id)
-	req, err := s.c.createRequest(ctx, "PUT", path, version, nil)
-
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := s.c.client.Do(req)
+	res, err := s.c.do(ctx, "PUT", path, version, nil)
 
 	if err != nil {
 		return nil, err
@@ -54,12 +48,7 @@ func (s *contentTypeService) Activate(ctx context.Context, spaceID string, env s
 
 func (s *contentTypeService) Read(ctx context.Context, spaceID string, env string, id string) (map[string]interface{}, error) {
 	path := fmt.Sprintf("/spaces/%s/environments/%s/content_types/%s", spaceID, s.c.getEnv(env), id)
-	req, err := s.c.createRequest(ctx, "GET", path, 0, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := s.c.client.Do(req)
+	res, err := s.c.do(ctx, "GET", path, 0, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -87,13 +76,7 @@ func (s *contentTypeService) Put(ctx context.Context, spaceID string, env string
 		return nil, err
 	}
 
-	req, err := s.c.createRequest(ctx, "PUT", path, version, bytes.NewReader(bodyBytes))
-
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := s.c.client.Do(req)
+	res, err := s.c.do(ctx, "PUT", path, version, bytes.NewReader(bodyBytes))
 
 	if err != nil {
 		return nil, err

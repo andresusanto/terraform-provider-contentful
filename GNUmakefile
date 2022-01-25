@@ -1,6 +1,6 @@
 default: testacc
 
-VERSION=1.0.0
+VERSION=1.1.1
 REPO=susan.to/terraform/contentful
 
 # Run acceptance tests
