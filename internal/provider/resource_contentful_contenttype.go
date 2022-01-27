@@ -449,7 +449,7 @@ func convertFieldsForWriting(original interface{}) (interface{}, error) {
 		}
 
 		utils.ConvertStringField(field, "link_type", "linkType")
-		utils.ConvertMapField(field, "default_value", "defaultValue")
+		utils.ConvertStringField(field, "default_value", "defaultValue")
 
 		if field["defaultValue"] != nil {
 			vMap := make(map[string]interface{})
