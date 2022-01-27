@@ -39,3 +39,13 @@ func ConvertStringField(m map[string]interface{}, old string, new string) {
 		delete(m, old)
 	}
 }
+
+func ConvertMapField(m map[string]interface{}, old string, new string) {
+	if m[old] != nil {
+		if len(m[old].(map[string]interface{})) > 0 {
+			m[new] = m[old]
+		}
+
+		delete(m, old)
+	}
+}

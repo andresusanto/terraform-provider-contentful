@@ -402,7 +402,7 @@ func convertFieldsForReading(fields interface{}) error {
 		}
 
 		utils.ConvertStringField(field, "linkType", "link_type")
-		utils.ConvertStringField(field, "defaultValue", "default_value")
+		utils.ConvertMapField(field, "defaultValue", "default_value")
 
 		if field["default_value"] != nil {
 			res, err := json.Marshal(field["default_value"])
@@ -449,7 +449,7 @@ func convertFieldsForWriting(original interface{}) (interface{}, error) {
 		}
 
 		utils.ConvertStringField(field, "link_type", "linkType")
-		utils.ConvertStringField(field, "default_value", "defaultValue")
+		utils.ConvertMapField(field, "default_value", "defaultValue")
 
 		if field["defaultValue"] != nil {
 			vMap := make(map[string]interface{})
