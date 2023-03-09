@@ -49,3 +49,10 @@ func ConvertMapField(m map[string]interface{}, old string, new string) {
 		delete(m, old)
 	}
 }
+
+func ConvertBoolField(m map[string]interface{}, old string, new string) {
+    if m[old] != nil {
+        m[new] = m[old]
+        delete(m, old)
+    }
+}

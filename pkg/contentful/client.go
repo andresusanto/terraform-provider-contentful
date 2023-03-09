@@ -16,7 +16,8 @@ type Client struct {
 	organisationID string
 	envID          string
 
-	ContentType IContentTypeService
+    ContentType IContentTypeService
+    ContentTypeEditor IContentTypeEditorService
 }
 
 func NewClient(token string, organisationID string, envID string) *Client {
@@ -27,7 +28,8 @@ func NewClient(token string, organisationID string, envID string) *Client {
 		envID:          envID,
 		baseURL:        "https://api.contentful.com",
 	}
-	c.ContentType = NewContentTypeService(c)
+    c.ContentType = NewContentTypeService(c)
+    c.ContentTypeEditor = NewContentTypeEditorService(c)
 
 	return c
 }
