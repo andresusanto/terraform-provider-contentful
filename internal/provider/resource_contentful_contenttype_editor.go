@@ -121,7 +121,7 @@ func resourceContentTypeEditorCreate(ctx context.Context, d *schema.ResourceData
 
     body["controls"] = controls
 
-	res, err := client.ContentTypeEditor.Put(ctx, spaceID, envID, id, 18, body)
+	res, err := client.ContentTypeEditor.Put(ctx, spaceID, envID, id, 1, body)
 	if err != nil {
 		return diag.Errorf("Unknown error when performing upsert: %s", err.Error())
 	}
