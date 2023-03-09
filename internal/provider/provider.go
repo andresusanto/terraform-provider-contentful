@@ -38,7 +38,8 @@ func New(version string) func() *schema.Provider {
 				},
 			},
 			ResourcesMap: map[string]*schema.Resource{
-				"contentful_contenttype": resourceContentfulContentType(),
+                "contentful_contenttype": resourceContentfulContentType(),
+                "contentful_contenttype_editor": resourceContentfulContentTypeEditor(),
 			},
 		}
 
